@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<graph.h>
+#define CYCLE 10000L;
 /*
 void recupCase(int case, int h, int l){
     printf("case[%d][%d] est : %d ",h ,l , case);
@@ -61,37 +62,58 @@ int main(void) {
         empl++;
     }
 
-    int snakehead, snaketail, numbody=0;
+    int snakehead, snaketail, numbody=0, emp=1;
     int snakebody[25];
-    snakehead = ChargerSprite("./snakeHead.png");
 	AfficherSprite(snakehead,posHeadY*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-    for (int i = posHeadY; i < taileSnake; i++){
-        int empl = 1;
+    for (int i = posHeadY; i < posHeadY+taileSnake; i++){
         if (i == posHeadY){
-            snakehead = ChargerSprite("./snakeHead.png");
+            snakehead = ChargerSprite("./snakeHeadG.png");
             AfficherSprite(snakehead,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-        }else if(empl == taileSnake){
-            snaketail = ChargerSprite("./snakeTail.png");
+        }else if(emp == taileSnake){
+            snaketail = ChargerSprite("./snakeTailG.png");
             AfficherSprite(snaketail,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
         }else{
-            snakebody[numbody]=ChargerSprite("./snakeBody.png");
+            snakebody[numbody]=ChargerSprite("./snakeBodyLine.png");
             AfficherSprite(snakebody[numbody],i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
             numbody++;
         }
-        empl++;
+        emp++;
     }
     
 
-    int touche;
-    while(touche!=XK_Escape){
-        
-
+    int touche, resPartie=0;
+    char direction='G';
+    int speedCoef=0.9;
+    int cycle = 1000;
+    int suivant=Microsecondes()+ CYCLE;
+    while(touche!=XK_Escape || resPartie!=0){
     	if (ToucheEnAttente()){
     		touche=Touche();
     	}
+        if (Microsecondes()>suivant){
+            int numbody=0, emp=1;
+            if (direction == 'G'){
+                posHeadY=posHeadY-1;
+                for (int i = posHeadY; i < taileSnake; i++){
+                    plateau[posHeadX][i]=plateau[posHeadX][i+1];
+                }
+                for (int i = posHeadY; i < taileSnake; i++){
+                    plateau[posHeadX][i]=plateau[posHeadX][i+1];
+                    if (plateau[posHeadX][i]==1){
+                        AfficherSprite(snakehead,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
+                    }else if(plateau[posHeadX][i]==2){
+                        AfficherSprite(snakebody[numbody],i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
+                        numbody++;
+                    }else if(plateau[posHeadX][i]==3){
+                        AfficherSprite(snaketail,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
+                    }
+                    emp++;
+                }
+            }
+            
+            suivant=Microsecondes()+ CYCLE;
+        }
     }
-
-
 
     FermerGraphique();
     return EXIT_SUCCESS;
