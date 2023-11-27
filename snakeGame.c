@@ -38,7 +38,7 @@ void initialiser() {
     tailleFenetreX = taillePlateauX+150;
     tailleFenetreY = taillePlateauY;
     nourritureX = nourritureY = -1;
-    vitesse = 100000;
+    vitesse = 200000;
 
 
     if (!CreerFenetre(50, 50, tailleFenetreX, tailleFenetreY)) {
@@ -95,7 +95,10 @@ void afficher() {
     ChoisirCouleurDessin(CouleurParComposante(20, 255, 20));
     RemplirRectangle(0, 0, taillePlateauX, taillePlateauY);
 
-    AfficherSprite(ChargerSprite("apple.png"), nourritureX, nourritureY);
+    /*AfficherSprite(ChargerSprite("apple.png"), nourritureX, nourritureY);*/
+
+    ChoisirCouleurDessin(CouleurParComposante(255, 0, 0));
+    RemplirRectangle(nourritureX, nourritureY, tailleCase, tailleCase);
 
     ChoisirCouleurDessin(CouleurParComposante(70, 70, 70));
     for (int i = 0; i < snake.longueur; ++i) {
@@ -112,8 +115,8 @@ void gameOver() {
 }
 
 int checkDeplacement() {
-    if (snake.position[0].x < 0 || snake.position[0].x >= taillePlateauX ||
-        snake.position[0].y < 0 || snake.position[0].y >= taillePlateauY) {
+    if (snake.position[0].x < 0 || snake.position[0].x > taillePlateauX ||
+        snake.position[0].y < 0 || snake.position[0].y > taillePlateauY) {
         return 1;
     }
 
