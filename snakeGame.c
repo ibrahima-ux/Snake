@@ -15,6 +15,10 @@ typedef struct {
     int longueur;
 } Snake;
 
+typedef struct {
+    Position position[5];
+} Apple;
+
 typedef enum {
     DROITE, GAUCHE, HAUT, BAS
 } Direction;
@@ -24,8 +28,8 @@ int nbY = 40, nbX = 60;
 int tailleFenetreX, tailleFenetreY, taillePlateauX, taillePlateauY;
 int tailleCase;
 Snake snake;
+Apple apple;
 Direction direction;
-int nourritureX, nourritureY;
 int vitesse;
 int score = 0;
 int help=1;
@@ -37,7 +41,11 @@ void initialiser() {
     taillePlateauY = nbY*tailleCase;
     tailleFenetreX = taillePlateauX+150;
     tailleFenetreY = taillePlateauY;
-    nourritureX = nourritureY = -1;
+    for (int i = 0; i < 5; i++){
+        apple.position[i].x = -1;
+        apple.position[i].y = -1;
+    }
+    
     vitesse = 200000;
 
 
@@ -55,11 +63,14 @@ void initialiser() {
     direction = DROITE;
 }
 
-void genererNourriture() {
+void genererNourriture(int z) {
     srand(time(NULL));
 
-    nourritureX = (rand() % (taillePlateauX / tailleCase)) * tailleCase;
-    nourritureY = (rand() % (taillePlateauY / tailleCase)) * tailleCase;
+    if (apple.position[z].x==-1 && apple.position[z].y==-1){
+        apple.position[z].x = (rand() % (taillePlateauX)) * tailleCase;
+        apple.position[z].y = (rand() % (taillePlateauY)) * tailleCase;
+        printf("X:%d et Y:%d\n", apple.position[z].x, apple.position[z].y);
+    }
 }
 
 void deplacersnake() {
@@ -86,8 +97,10 @@ void deplacersnake() {
 void afficher() {
     EffacerEcran(CouleurParComposante(0, 0, 0));
 
-    if (nourritureX == -1 && nourritureY == -1) {
-        genererNourriture();
+    for (int i = 0; i < 5; i++){
+        if (apple.position[i].x == -1 && apple.position[i].y == -1) {
+            genererNourriture(i);
+        }
     }
 
     ChoisirCouleurDessin(CouleurParComposante(40, 40, 40));
@@ -98,10 +111,14 @@ void afficher() {
     /*AfficherSprite(ChargerSprite("apple.png"), nourritureX, nourritureY);*/
 
     ChoisirCouleurDessin(CouleurParComposante(255, 0, 0));
-    RemplirRectangle(nourritureX, nourritureY, tailleCase, tailleCase);
+    for (int i = 0; i < 5; i++){
+        RemplirRectangle(apple.position[i].x, apple.position[i].x, tailleCase, tailleCase);
+    }
 
+    ChoisirCouleurDessin(CouleurParComposante(70, 170, 70));
+    RemplirRectangle(snake.position[0].x, snake.position[0].y, tailleCase, tailleCase);
     ChoisirCouleurDessin(CouleurParComposante(70, 70, 70));
-    for (int i = 0; i < snake.longueur; ++i) {
+    for (int i = 1; i < snake.longueur; ++i) {
         RemplirRectangle(snake.position[i].x, snake.position[i].y, tailleCase, tailleCase);
     }
 
@@ -120,7 +137,7 @@ int checkDeplacement() {
         return 1;
     }
 
-    for (int i = 1; i < snake.longueur; ++i) {
+    for (int i = 0; i < 5; ++i) {
         if (snake.position[0].x == snake.position[i].x && snake.position[0].y == snake.position[i].y) {
             return 1;
         }
@@ -162,10 +179,12 @@ void jouer() {
             gameOver();
         }
 
-        if (snake.position[0].x == nourritureX && snake.position[0].y == nourritureY) {
-            snake.longueur+=2;
-            score+=20;
-            nourritureX = nourritureY = -1;
+        for (int i = 0; i < 5; i++){
+            if (snake.position[0].x == apple.position[i].x && snake.position[0].y == apple.position[i].y) {
+                snake.longueur++;
+                score+=20;
+                apple.position[i].x = apple.position[i].y = -1;
+            }
         }
 
         afficher();
