@@ -28,6 +28,7 @@ Direction direction;
 int nourritureX, nourritureY;
 int vitesse;
 int score = 0;
+int help=1;
 
 void initialiser() {
     InitialiserGraphique();
@@ -38,6 +39,7 @@ void initialiser() {
     tailleFenetreY = taillePlateauY;
     nourritureX = nourritureY = -1;
     vitesse = 100000;
+
 
     if (!CreerFenetre(50, 50, tailleFenetreX, tailleFenetreY)) {
         fprintf(stderr, "Erreur creation de feunetre\n");
@@ -88,14 +90,14 @@ void afficher() {
         genererNourriture();
     }
 
-    ChoisirCouleurDessin(CouleurParComposante(190, 190, 190));
+    ChoisirCouleurDessin(CouleurParComposante(40, 40, 40));
     RemplirRectangle(0, 0, tailleFenetreX, tailleFenetreY);
     ChoisirCouleurDessin(CouleurParComposante(20, 255, 20));
     RemplirRectangle(0, 0, taillePlateauX, taillePlateauY);
 
-    ChoisirCouleurDessin(CouleurParComposante(255, 0, 0));
-    RemplirRectangle(nourritureX, nourritureY, tailleCase, tailleCase);
+    AfficherSprite(ChargerSprite("apple.png"), nourritureX, nourritureY);
 
+    ChoisirCouleurDessin(CouleurParComposante(70, 70, 70));
     for (int i = 0; i < snake.longueur; ++i) {
         RemplirRectangle(snake.position[i].x, snake.position[i].y, tailleCase, tailleCase);
     }
