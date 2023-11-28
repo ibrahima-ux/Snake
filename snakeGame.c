@@ -65,23 +65,22 @@ void initialiser() {
 }
 
 void genererNourriture(int z) {
-    srand(time(NULL));
-    int test=0;
-    while (test!=nbPomme-1){
-        if (apple.position[z].x==-1 && apple.position[z].y==-1){
-            apple.position[z].x = (rand() % (nbX)) * tailleCase;
-            apple.position[z].y = (rand() % (nbY)) * tailleCase;
+    int test = 0;
+    if (apple.position[z].x == -1 && apple.position[z].y == -1) {
+        srand(time(NULL));
+        do {
+            apple.position[z].x = (rand() % nbX) * tailleCase;
+            apple.position[z].y = (rand() % nbY) * tailleCase;
             printf("X:%d et Y:%d\n", apple.position[z].x, apple.position[z].y);
-        }
-
-        test=0;
-        for (int i = 0; i < nbPomme; i++) {
-            if (i!=z){
-                if (apple.position[z].x!=apple.position[i].x || apple.position[z].y==apple.position[i].y){
-                    test++;
+            test = 0;
+            for (int i = 0; i < nbPomme; i++) {
+                if (i != z) {
+                    if (apple.position[z].x == apple.position[i].x && apple.position[z].y == apple.position[i].y) {
+                        test++;
+                    }
                 }
             }
-        }
+        } while (test != nbPomme - 1);
     }
 }
 
@@ -123,11 +122,11 @@ void afficher() {
     /*AfficherSprite(ChargerSprite("apple.png"), nourritureX, nourritureY);*/
 
     ChoisirCouleurDessin(CouleurParComposante(255, 0, 0));
-    RemplirRectangle(apple.position[0].x, apple.position[0].x, tailleCase, tailleCase);
-    RemplirRectangle(apple.position[1].x, apple.position[1].x, tailleCase, tailleCase);
-    RemplirRectangle(apple.position[2].x, apple.position[2].x, tailleCase, tailleCase);
-    RemplirRectangle(apple.position[3].x, apple.position[3].x, tailleCase, tailleCase);
-    RemplirRectangle(apple.position[4].x, apple.position[4].x, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[0].x, apple.position[0].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[1].x, apple.position[1].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[2].x, apple.position[2].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[3].x, apple.position[3].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[4].x, apple.position[4].y, tailleCase, tailleCase);
 
     ChoisirCouleurDessin(CouleurParComposante(70, 170, 70));
     RemplirRectangle(snake.position[0].x, snake.position[0].y, tailleCase, tailleCase);
