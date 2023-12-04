@@ -47,7 +47,7 @@ void initialiser() {
         apple.position[i].y = -1;
     }
     
-    vitesse = 200000;
+    vitesse = 100000;
 
 
     if (!CreerFenetre(50, 50, tailleFenetreX, tailleFenetreY)) {
@@ -58,30 +58,33 @@ void initialiser() {
     ChoisirTitreFenetre("Snake By Me");
 
     snake.longueur = 10;
-    snake.position[0].x = taillePlateauX / 2 - snake.longueur/2;
-    snake.position[0].y = taillePlateauY / 2;
+    snake.position[0].x = taillePlateauX / 2;
+    snake.position[0].y = taillePlateauY / 2;/*
+    for (int i = 1; i < snake.longueur; i++){
+        snake.position[i].x = snake.position[i-1].x+tailleCase;
+        snake.position[i].y = snake.position[0].y;
+    }*/
 
     direction = DROITE;
 }
 
 void genererNourriture(int z) {
     int test = 0;
-    if (apple.position[z].x == -1 && apple.position[z].y == -1) {
+    /*if (apple.position[z].x == -1 && apple.position[z].y == -1) {/
         srand(time(NULL));
-        do {
+        /*do {*/
             apple.position[z].x = (rand() % nbX) * tailleCase;
             apple.position[z].y = (rand() % nbY) * tailleCase;
-            printf("X:%d et Y:%d\n", apple.position[z].x, apple.position[z].y);
-            test = 0;
+            /*test = 0;
             for (int i = 0; i < nbPomme; i++) {
                 if (i != z) {
-                    if (apple.position[z].x == apple.position[i].x && apple.position[z].y == apple.position[i].y) {
+                    if (apple.position[z].x != apple.position[i].x || apple.position[z].y != apple.position[i].y) {
                         test++;
                     }
                 }
             }
-        } while (test != nbPomme - 1);
-    }
+        } while (test != nbPomme - 1);*/
+    /*}*/
 }
 
 void deplacersnake() {
@@ -130,7 +133,7 @@ void afficher() {
 
     ChoisirCouleurDessin(CouleurParComposante(70, 170, 70));
     RemplirRectangle(snake.position[0].x, snake.position[0].y, tailleCase, tailleCase);
-    
+
     ChoisirCouleurDessin(CouleurParComposante(70, 70, 70));
     for (int i = 1; i < snake.longueur; i++) {
         RemplirRectangle(snake.position[i].x, snake.position[i].y, tailleCase, tailleCase);
@@ -146,8 +149,8 @@ void gameOver() {
 }
 
 int checkDeplacement() {
-    if (snake.position[0].x < 0 || snake.position[0].x > taillePlateauX ||
-        snake.position[0].y < 0 || snake.position[0].y > taillePlateauY) {
+    if (snake.position[0].x < 0 || snake.position[0].x >= taillePlateauX ||
+        snake.position[0].y < 0 || snake.position[0].y >= taillePlateauY) {
         return 1;
     }
 

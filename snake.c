@@ -1,120 +1,239 @@
+#include "graph.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include<graph.h>
-#define CYCLE 10000L;
-/*
-void recupCase(int case, int h, int l){
-    printf("case[%d][%d] est : %d ",h ,l , case);
-}
-*/
+#include <time.h>
+#include <unistd.h>
 
-int main(void) {
-    /*
-    int l=10, h=30;
-	int plateau[h][l];
-	
-    int i, j;
-	for (i = 0; i < h; i++){
-        for (j = 0; j < l; j++){
-            
-	    }
-	}
-    */
-    
+#define TAILLEMAX 100
+#define CYCLE 10000L
+#define SEC 10000L
+
+typedef struct {
+    int x, y;
+} Position;
+
+typedef struct {
+    Position position[TAILLEMAX];
+    int longueur;
+} Snake;
+
+typedef struct {
+    Position position[5];
+    int spriteNb[5];
+} Apple;
+
+typedef enum {
+    DROITE, GAUCHE, HAUT, BAS
+} Direction;
+
+unsigned long boucleCycle=10000000;
+unsigned long timerCycle=100000000;
+
+int nbY = 40, nbX = 60;
+int tailleFenetreX, tailleFenetreY, taillePlateauX, taillePlateauY;
+int tailleCase;
+Snake snake;
+Apple apple;
+Direction direction;
+int vitesse;
+int score = 0;
+int help=1;
+int nbPomme=5;
+int timerGame;
+
+void initialiser() {
     InitialiserGraphique();
-    int windowsMargin = 10;
-    int nbligne = 40, nbcolone = 60;
-    int taillecase = 20;
-    int windowsH = taillecase*nbligne + windowsMargin*3, windowsL = taillecase*nbcolone + windowsMargin*2;
-    CreerFenetre(10,10,windowsL,windowsH);
+    tailleCase = 20;
+    taillePlateauX = nbX*tailleCase;
+    taillePlateauY = nbY*tailleCase;
+    tailleFenetreX = taillePlateauX+150;
+    tailleFenetreY = taillePlateauY;
+    for (int i = 0; i < nbPomme; i++){
+        apple.position[i].x = -1;
+        apple.position[i].y = -1;
+    }
+    timerGame=0;
+    vitesse = 200000;
 
-    ChoisirCouleurDessin(CouleurParComposante(0, 0, 0));
-    RemplirRectangle(0,0,windowsL,windowsH);
 
-    couleur Background;
-    Background=CouleurParComposante(38, 132, 0);
-    ChoisirCouleurDessin(Background);
-    RemplirRectangle(windowsMargin ,windowsMargin ,windowsL-2*windowsMargin ,windowsH - windowsMargin*3 -TailleSupPolice(2));
+    if (!CreerFenetre(150, 150, tailleFenetreX, tailleFenetreY)) {
+        fprintf(stderr, "Erreur creation de feunetre\n");
+        exit(1);
+    }
 
+    ChoisirTitreFenetre("Snake By Me");
+
+    snake.longueur = 10;
+    snake.position[0].x = taillePlateauX / 2;
+    snake.position[0].y = taillePlateauY / 2;
+    for (int i = 1; i < snake.longueur; i++){
+        snake.position[i].x = snake.position[i-1].x + tailleCase;
+        snake.position[i].y = snake.position[0].y;
+    }
+
+    direction = DROITE;
+}
+
+void genererNourriture(int z) {
+    int test = 0;
+    apple.position[z].x = (rand() % nbX) * tailleCase;
+    apple.position[z].y = (rand() % nbY) * tailleCase;
+}
+
+void deplacersnake() {
+    for (int i = snake.longueur - 1; i > 0; --i) {
+        snake.position[i] = snake.position[i - 1];
+    }
+
+    switch (direction) {
+        case DROITE:
+            snake.position[0].x += tailleCase;
+        break;
+        case GAUCHE:
+            snake.position[0].x -= tailleCase;
+        break;
+        case HAUT:
+            snake.position[0].y -= tailleCase;
+        break;
+        case BAS:
+            snake.position[0].y += tailleCase;
+        break;
+    }
+}
+
+void afficher() {
+    for (int i = 0; i < nbPomme; i++){
+        LibererSprite(apple.spriteNb[i]);
+    }
+    EffacerEcran(CouleurParComposante(0, 0, 0));
+
+    for (int i = 0; i < nbPomme; i++){
+        if (apple.position[i].x == -1 && apple.position[i].y == -1) {
+            genererNourriture(i);
+        }
+    }
+
+    ChoisirCouleurDessin(CouleurParComposante(40, 40, 40));
+    RemplirRectangle(0, 0, tailleFenetreX, tailleFenetreY);
+    ChoisirCouleurDessin(CouleurParComposante(20, 255, 20));
+    RemplirRectangle(0, 0, taillePlateauX, taillePlateauY);
+
+    for (int i = 0; i < nbPomme; i++){
+        apple.spriteNb[i] = ChargerSprite("apple.png");
+    }
+    for (int i = 0; i < nbPomme; i++){
+        AfficherSprite(apple.spriteNb[i], apple.position[i].x, apple.position[i].y);
+    }
+/*
+    ChoisirCouleurDessin(CouleurParComposante(255, 0, 0));
+    RemplirRectangle(apple.position[0].x, apple.position[0].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[1].x, apple.position[1].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[2].x, apple.position[2].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[3].x, apple.position[3].y, tailleCase, tailleCase);
+    RemplirRectangle(apple.position[4].x, apple.position[4].y, tailleCase, tailleCase);
+/*
+    ChoisirCouleurDessin(CouleurParComposante(70, 170, 70));
+    RemplirRectangle(snake.position[0].x, snake.position[0].y, tailleCase, tailleCase);*/
+    ChoisirCouleurDessin(CouleurParComposante(70, 70, 70));
+    for (int i = 0; i < snake.longueur; i++) {
+        RemplirRectangle(snake.position[i].x, snake.position[i].y, tailleCase, tailleCase);
+    }
+
+    int minute = timerGame/60;
+    int seconde = timerGame%60;
+    int xtimer=taillePlateauX  + ((tailleFenetreX-taillePlateauX-TailleChaineEcran(minute+":"+seconde, 2))/2);
+    int ytimer=25;
     ChoisirCouleurDessin(CouleurParComposante(255, 255, 255));
-    int y = windowsMargin*2 +TailleSupPolice(2) - TailleSupPolice(2) + windowsH-windowsMargin*3 -TailleSupPolice(2);
-    y = windowsH - windowsMargin;
-    EcrireTexte(windowsMargin +10 ,y ,"01:27" ,2);
-    char textes[8] = "0000190";
-    int x = windowsL - windowsMargin - TailleChaineEcran(textes,2);
-    EcrireTexte(x,y,textes,2);
+    EcrireTexte(xtimer, ytimer, minute+":"+seconde, 2);
 
+    AfficherFenetre();
+}
 
+void gameOver() {
+    FermerGraphique();
+    printf("Game Over! avec un score de %d\n", score);
+    exit(0);
+}
 
-
-    int posHeadX=20, posHeadY=25;
-    int taileSnake = 10;
-    int plateau[60][40] = {0};
-    for (int i = posHeadY; i < taileSnake; i++){
-        int empl = 1;
-        if (i == posHeadY){
-            plateau[posHeadX][i]=1;
-        }else if(empl == taileSnake){
-            plateau[posHeadX][i]=3;
-        }else{
-            plateau[posHeadX][i]=2;
-        }
-        empl++;
+int checkDeplacement() {
+    if (snake.position[0].x < 0 || snake.position[0].x >= taillePlateauX ||
+        snake.position[0].y < 0 || snake.position[0].y >= taillePlateauY) {
+        return 1;
     }
 
-    int snakehead, snaketail, numbody=0, emp=1;
-    int snakebody[25];
-	AfficherSprite(snakehead,posHeadY*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-    for (int i = posHeadY; i < posHeadY+taileSnake; i++){
-        if (i == posHeadY){
-            snakehead = ChargerSprite("./snakeHeadG.png");
-            AfficherSprite(snakehead,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-        }else if(emp == taileSnake){
-            snaketail = ChargerSprite("./snakeTailG.png");
-            AfficherSprite(snaketail,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-        }else{
-            snakebody[numbody]=ChargerSprite("./snakeBodyLine.png");
-            AfficherSprite(snakebody[numbody],i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-            numbody++;
+    for (int i = 1; i < snake.longueur; i++) {
+        if (snake.position[0].x == snake.position[i].x && snake.position[0].y == snake.position[i].y) {
+            return 1;
         }
-        emp++;
     }
-    
 
-    int touche, resPartie=0;
-    char direction='G';
-    int speedCoef=0.9;
-    int cycle = 1000;
-    int suivant=Microsecondes()+ CYCLE;
-    while(touche!=XK_Escape || resPartie!=0){
-    	if (ToucheEnAttente()){
-    		touche=Touche();
-    	}
-        if (Microsecondes()>suivant){
-            int numbody=0, emp=1;
-            if (direction == 'G'){
-                posHeadY=posHeadY-1;
-                for (int i = posHeadY; i < taileSnake; i++){
-                    plateau[posHeadX][i]=plateau[posHeadX][i+1];
-                }
-                for (int i = posHeadY; i < taileSnake; i++){
-                    plateau[posHeadX][i]=plateau[posHeadX][i+1];
-                    if (plateau[posHeadX][i]==1){
-                        AfficherSprite(snakehead,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-                    }else if(plateau[posHeadX][i]==2){
-                        AfficherSprite(snakebody[numbody],i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
-                        numbody++;
-                    }else if(plateau[posHeadX][i]==3){
-                        AfficherSprite(snaketail,i*taillecase+windowsMargin,posHeadX*taillecase+windowsMargin);
+    return 0;
+}
+
+void jouer() {
+    while (1) {
+        if (ToucheEnAttente()) {
+            KeySym touche = Touche();
+            switch (touche) {
+                case XK_Right:
+                    if (direction != GAUCHE) {
+                        direction = DROITE;
                     }
-                    emp++;
+                break;
+                case XK_Left:
+                    if (direction != DROITE) {
+                        direction = GAUCHE;
+                    }
+                break;
+                case XK_Up:
+                    if (direction != BAS) {
+                        direction = HAUT;
+                    }
+                break;
+                case XK_Down:
+                    if (direction != HAUT) {
+                        direction = BAS;
+                    }
+                break;
+            }
+        }
+
+        unsigned long suivant= Microsecondes()+boucleCycle;
+        unsigned long timer = Microsecondes()+timerCycle;
+        if (Microsecondes()>suivant){
+            suivant= Microsecondes()+boucleCycle;
+            printf("game\n");
+
+            deplacersnake();
+            if (checkDeplacement()) {
+                gameOver();
+            }
+
+            for (int i = 0; i < nbPomme; i++){
+                if (snake.position[0].x == apple.position[i].x && snake.position[0].y == apple.position[i].y) {
+                    snake.longueur++;
+                    printf("longueur:%d.\n", snake.longueur);
+                    score+=10;
+                    apple.position[i].x = apple.position[i].y = -1;
                 }
             }
-            
-            suivant=Microsecondes()+ CYCLE;
         }
+
+        if (Microsecondes()>timer){
+            timer = Microsecondes()+timerCycle;
+
+            printf("sec\n");
+            timerGame++;
+        }
+
+        afficher();
     }
 
-    FermerGraphique();
+}
+
+int main(void) {
+    initialiser();
+    jouer();
+
     return EXIT_SUCCESS;
 }
