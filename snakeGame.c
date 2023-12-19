@@ -46,9 +46,8 @@ void initialiser() {
         apple.position[i].x = -1;
         apple.position[i].y = -1;
     }
-    
-    vitesse = 100000;
 
+    vitesse = 100000;
 
     if (!CreerFenetre(50, 50, tailleFenetreX, tailleFenetreY)) {
         fprintf(stderr, "Erreur creation de feunetre\n");

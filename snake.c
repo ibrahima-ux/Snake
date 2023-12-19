@@ -55,7 +55,6 @@ void initialiser() {
     timerGame=0;
     vitesse = 200000;
 
-
     if (!CreerFenetre(150, 150, tailleFenetreX, tailleFenetreY)) {
         fprintf(stderr, "Erreur creation de feunetre\n");
         exit(1);
@@ -144,7 +143,10 @@ void afficher() {
     int xtimer=taillePlateauX  + ((tailleFenetreX-taillePlateauX-TailleChaineEcran(minute+":"+seconde, 2))/2);
     int ytimer=25;
     ChoisirCouleurDessin(CouleurParComposante(255, 255, 255));
-    EcrireTexte(xtimer, ytimer, minute+":"+seconde, 2);
+    char* min, secs;
+    sprintf(min, "%d", timerGame/60);
+    sprintf(secs, "%d", timerGame%60);
+    EcrireTexte(xtimer, ytimer, secs, 2);
 
     AfficherFenetre();
 }
@@ -200,7 +202,7 @@ void jouer() {
 
         unsigned long suivant= Microsecondes()+boucleCycle;
         unsigned long timer = Microsecondes()+timerCycle;
-        if (Microsecondes()>suivant){
+        /*if (Microsecondes()>suivant){
             suivant= Microsecondes()+boucleCycle;
             printf("game\n");
 
@@ -217,7 +219,7 @@ void jouer() {
                     apple.position[i].x = apple.position[i].y = -1;
                 }
             }
-        }
+        }*/
 
         if (Microsecondes()>timer){
             timer = Microsecondes()+timerCycle;
